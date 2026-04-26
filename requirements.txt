@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+opensearch-py
+requests
+pydantic
+chandra-ocr
+docling
+llama-index              # thay thế openrag
+python-dotenv>=1.1.0     # thỏa mãn chandra-ocr và fastmcp
+litellm<1.83.3           # tránh ép cứng dotenv=1.0.1
+jmespath==1.0.1          # khớp với ibm-cos-sdk
