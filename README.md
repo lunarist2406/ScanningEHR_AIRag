@@ -1,108 +1,116 @@
-Chào bạn, một dự án kết hợp giữa **Blockchain** (theo hướng EHR mà bạn đang theo đuổi) và **AI (RAG)** là một bước đi cực kỳ ấn tượng cho đồ án tốt nghiệp hoặc Portfolio cá nhân.
+# Scanning EHR Record by AI RAG: Intelligent Medical Record Digitalization
 
-Dưới đây là bản chuyên nghiệp hóa của `README.md`, được cấu trúc lại để làm nổi bật tính ứng dụng công nghệ và quy trình kỹ thuật của bạn:
+**Scanning EHR Record by AI RAG** là hệ thống số hóa hồ sơ y tế thông minh, sử dụng kiến trúc **RAG (Retrieval-Augmented Generation)** để chuyển đổi các tài liệu y khoa không cấu trúc (Scan, PDF, Hình ảnh) thành dữ liệu máy có thể đọc được (Structured Data) với độ chính xác cao.
 
 ---
 
-# 🚀 ScanningEHR-AIRag: Hệ Thống Số Hóa Hồ Sơ Y Tế Thông Minh
+## 🌟 Tính năng nổi bật
+* **Hybrid OCR Engine:** Kết hợp **Chandra-OCR** và **Docling** để xử lý hoàn hảo từ văn bản thuần đến các bảng biểu y tế phức tạp.
+* **Semantic Extraction:** Sử dụng LLMs để "hiểu" nội dung y khoa, trích xuất thông tin mà không cần định dạng mẫu (Template-less).
+* **Enterprise Architecture:** Cấu trúc code mô-đun hóa, dễ dàng mở rộng và bảo trì.
+* **Multi-LLM Support:** Tích hợp **LiteLLM** cho phép chuyển đổi linh hoạt giữa Gemini, GPT-4, hoặc Claude tùy theo nhu cầu chi phí/hiệu năng.
 
-**ScanningEHR-AIRag** là một giải pháp tiên tiến hỗ trợ chuyển đổi các hồ sơ y tế dạng bản quét (Scan/PDF) thành dữ liệu có cấu trúc bằng cách kết hợp sức mạnh của **OCR (Optical Character Recognition)** và **LLMs (Large Language Models)** thông qua kiến trúc **RAG (Retrieval-Augmented Generation)**.
+---
 
+## 🏗️ Kiến trúc hệ thống & Luồng dữ liệu
 
+Quy trình xử lý của hệ thống được chuẩn hóa qua 4 giai đoạn:
 
-## 🌟 Tính năng cốt lõi
-* **Đa dạng hóa đầu vào:** Hỗ trợ xử lý tệp PDF và hình ảnh y tế không cấu trúc.
-* **Trích xuất thông minh:** Sử dụng LLM để nhận diện các trường dữ liệu động (Tên bệnh nhân, Chẩn đoán, Phác đồ điều trị,...) mà không cần định nghĩa template cứng nhắc.
-* **Xử lý tài liệu phức tạp:** Tích hợp **Docling** để phân tích các cấu trúc bảng biểu và sơ đồ trong tài liệu y khoa.
-* **Backend linh hoạt:** Hỗ trợ nhiều LLM hàng đầu (GPT-4, Claude, Gemini) thông qua lớp trung gian **LiteLLM**.
+1.  **Ingestion Layer:** FastAPI nhận file và kiểm tra định dạng.
+2.  **Processing Layer:** * **Docling/Chandra-OCR** bóc tách văn bản thô và cấu trúc bảng.
+    * Văn bản được phân mảnh (Chunking) để tối ưu cho việc truy vấn.
+3.  **Indexing Layer:** **LlamaIndex** xây dựng Vector Index, cho phép LLM truy xuất ngữ cảnh chính xác.
+4.  **Reasoning Layer:** LLM phân tích ngữ cảnh và trả về JSON chuẩn hóa theo schema định sẵn.
 
-## 🏗️ Kiến trúc hệ thống
+---
 
-Dự án được xây dựng trên luồng xử lý dữ liệu khép kín (Pipeline):
+## 📂 Cấu trúc dự án (Standardized)
 
-1.  **Ingestion:** FastAPI tiếp nhận hồ sơ y tế từ người dùng.
-2.  **Processing:** * **Chandra-OCR** & **Docling** thực hiện bóc tách văn bản thô từ file scan.
-    * **LlamaIndex** đóng vai trò Framework điều phối, xây dựng Index từ dữ liệu OCR.
-3.  **Extraction:** LLM thực hiện truy vấn trên Index để trích xuất dữ liệu thành định dạng JSON chuẩn hóa.
-
-### Cấu trúc thư mục
 ```text
-project-root/
-│── app/
-│   │── main.py              # FastAPI entrypoint
-│   │── config.py            # cấu hình chung (env, DB, API keys)
-│   │── routers/
-│   │   │── records.py       # API upload & quản lý hồ sơ
-│   │   │── query.py         # API query dữ liệu đã OCR
-│   │── services/
-│   │   │── ocr_chandra.py   # OCR bằng Chandra
-│   │   │── docling_parser.py# parse tài liệu phức tạp
-│   │   │── ehr_sync.py      # đồng bộ dữ liệu EHR
-│   │   │── llm_pipeline.py  # pipeline LlamaIndex (thay openrag)
-│   │── models/
-│   │   │── record.py        # schema hồ sơ
-│   │   │── query.py         # schema query
-│   │── utils/
-│   │   │── logger.py        # logging
-│   │   │── helpers.py       # tiện ích chung
-│   │── context/
-│   │   │── edge_tabs.py     # metadata Edge tabs (nếu cần)
-
+ScanningEHR_AIRag/
+├── app/
+│   ├── main.py              # Entrypoint khởi tạo FastAPI app
+│   ├── config.py            # Quản lý cấu hình (Env vars, API Keys, Settings)
+│   ├── routers/             # Định nghĩa các Endpoint API
+│   │   ├── records.py       # API Upload, xử lý & lưu trữ hồ sơ
+│   │   └── query.py         # API Truy vấn/Chat với dữ liệu hồ sơ
+│   ├── services/            # Logic nghiệp vụ chính (Core Logic)
+│   │   ├── ocr_engine.py    # Xử lý OCR với Chandra & Docling
+│   │   ├── llm_pipeline.py  # Điều phối LlamaIndex & RAG workflow
+│   │   └── blockchain_sync.py # [Tùy chọn] Đồng bộ dữ liệu sang EHR Blockchain
+│   ├── models/              # Định nghĩa Data Models (Pydantic & DB Schemas)
+│   │   ├── request.py       # Validation dữ liệu đầu vào
+│   │   └── response.py      # Định dạng dữ liệu đầu ra (JSON format)
+│   └── utils/               # Công cụ hỗ trợ
+│       ├── logger.py        # Ghi log hệ thống
+│       └── helpers.py       # Các hàm bổ trợ xử lý file/string
+├── .env                     # Biến môi trường (Keys, Port, DB)
+├── requirements.txt         # Danh sách thư viện
+└── README.md                # Tài liệu hướng dẫn
 ```
 
-## 🛠️ Cài đặt & Sử dụng
+---
 
-### 1. Khởi tạo môi trường
-Bạn có thể cài đặt nhanh chóng thông qua các script có sẵn:
+## 🛠️ Cài đặt & Triển khai
 
-* **Windows:** Chạy file `install.bat`
+### 1. Chuẩn bị môi trường
+Sử dụng script tự động để thiết lập môi trường ảo và cài đặt thư viện:
+
+* **Windows:** `install.bat`
 * **Linux/MacOS:** ```bash
-    chmod +x install.sh
-    ./install.sh
+    chmod +x install.sh && ./install.sh
     ```
 
-### 2. Cấu hình biến môi trường
-Tạo file `.env` tại thư mục gốc và cấu hình API Key cho LLM bạn sử dụng:
+### 2. Cấu hình hệ thống
+Tạo file `.env` tại thư mục gốc:
 ```env
-GEMINI_API_KEY=your_api_key_here
-# Hoặc OPENAI_API_KEY nếu dùng GPT-4
+# LLM Configuration
+GEMINI_API_KEY=your_gemini_key
+LITELLM_MODEL=gemini/gemini-1.5-pro
+
+# Server Configuration
+PORT=8000
+DEBUG=True
 ```
 
-### 3. Khởi chạy ứng dụng
-Sử dụng **Uvicorn** để chạy Server:
+### 3. Khởi chạy
 ```bash
-uvicorn src.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## 📡 API Reference
+---
 
-### Upload & Extract Data
-**Endpoint:** `POST /upload`
+## 📡 Tài liệu API (Tóm tắt)
 
-**Request:**
-```bash
-curl -X POST "http://localhost:8000/upload" -F "file=@path/to/your/medical_record.pdf"
-```
+### 📤 Upload & Trích xuất dữ liệu
+* **Method:** `POST`
+* **Path:** `/api/v1/records/upload`
+* **Payload:** `multipart/form-data` (file: .pdf, .png, .jpg)
 
-**Response (JSON):**
+**Kết quả trả về:**
 ```json
 {
-  "status": "success",
-  "data": {
-    "patient_name": "Nguyen Van A",
-    "exam_date": "2026-04-20",
-    "diagnosis": "Viêm phổi cấp tính",
-    "medications": ["Paracetamol", "Amoxicillin"],
-    "hospital": "Bệnh viện Đa khoa Trung ương"
+  "request_id": "uuid-12345",
+  "status": "completed",
+  "extracted_data": {
+    "patient_info": {
+      "name": "Lý Văn Mỹ",
+      "age": 22
+    },
+    "clinical_notes": "Viêm họng cấp, cần theo dõi thêm.",
+    "structured_json": { ... }
   }
 }
 ```
 
-## 🧩 Thành phần công nghệ (Stack)
-* **Framework:** FastAPI, LlamaIndex.
-* **OCR & Parsing:** Chandra-OCR, Docling.
-* **LLM Gateway:** LiteLLM (Hỗ trợ GPT-4, Claude, Gemini, v.v.).
-* **Vector DB (Optional):** OpenSearch.
+---
+
+## 🧩 Công nghệ sử dụng
+* **Backend:** FastAPI (Python 3.10+)
+* **RAG Framework:** LlamaIndex
+* **OCR:** Chandra-OCR & IBM Docling
+* **LLM Gateway:** LiteLLM
+* **Data Validation:** Pydantic v2
 
 ---
-*Dự án đang trong quá trình phát triển để tối ưu hóa độ chính xác trong việc nhận diện các thuật ngữ y khoa chuyên sâu.*
+*Dự án này là một phần trong hệ sinh thái EHR Blockchain, tập trung vào việc giải quyết bài toán nhập liệu tự động trong y tế.*
